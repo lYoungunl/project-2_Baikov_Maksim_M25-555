@@ -1,0 +1,14 @@
+[
+  {
+    "ID": 1,
+    "name": "Алексей",
+    "grade": 85,
+    "passed": true
+  },
+  {
+    "ID": 2,
+    "name": "Мария",
+    "grade": 92,
+    "passed": false
+  }
+]

@@ -16,5 +16,23 @@
       "age:int"
     ],
     "data": []
+  },
+  "users": {
+    "columns": [
+      "ID:int",
+      "name:str",
+      "age:int",
+      "is_active:bool"
+    ],
+    "data": []
+  },
+  "students": {
+    "columns": [
+      "ID:int",
+      "name:str",
+      "grade:int",
+      "passed:bool"
+    ],
+    "data": []
   }
 }
