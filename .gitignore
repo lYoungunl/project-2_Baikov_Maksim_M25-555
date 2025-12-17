@@ -1,0 +1,24 @@
+﻿# Виртуальные окружения
+.venv/
+venv/
+env/
+
+# Распределяемые файлы
+dist/
+build/
+*.egg-info/
+
+# Кэш Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Операционные системы
+.DS_Store
+Thumbs.db
+
+# Редакторы
+.vscode/
+.idea/
+*.swp
+*.swo
