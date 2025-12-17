@@ -7,5 +7,14 @@
       "in_stock:bool"
     ],
     "data": []
+  },
+  "customers": {
+    "columns": [
+      "ID:int",
+      "name:str",
+      "email:str",
+      "age:int"
+    ],
+    "data": []
   }
 }
