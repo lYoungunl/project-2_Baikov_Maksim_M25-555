@@ -1,0 +1,11 @@
+{
+  "products": {
+    "columns": [
+      "ID:int",
+      "name:str",
+      "price:int",
+      "in_stock:bool"
+    ],
+    "data": []
+  }
+}

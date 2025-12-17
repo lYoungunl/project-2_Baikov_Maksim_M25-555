@@ -17,6 +17,7 @@ ruff = "^0.14.9"
 
 [tool.poetry.scripts]
 project = "src.primitive_db.main:main"
+database = "src.primitive_db.engine:run"
 
 [build-system]
 requires = ["poetry-core"]
