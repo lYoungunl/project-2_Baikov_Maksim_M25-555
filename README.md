@@ -14,6 +14,7 @@
 
 ## Структура проекта
 
+```bash
 project#2_Baikov_Maksim_M25-555/
 ├── data/ # Данные таблиц (JSON файлы)
 ├── src/primitive_db/
@@ -30,7 +31,7 @@ project#2_Baikov_Maksim_M25-555/
 ├── Makefile # Автоматизация команд разработки
 ├── db_meta.json # Структура таблиц (метаданные)
 └── .gitignore # Игнорируемые файлы
-
+```
 ## Команды Makefile
 
 - `make install` - установить зависимости (poetry install)
