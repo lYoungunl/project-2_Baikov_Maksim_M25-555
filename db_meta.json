@@ -26,12 +26,12 @@
     ],
     "data": []
   },
-  "students": {
+  "books": {
     "columns": [
       "ID:int",
-      "name:str",
-      "grade:int",
-      "passed:bool"
+      "title:str",
+      "pages:int",
+      "available:bool"
     ],
     "data": []
   }

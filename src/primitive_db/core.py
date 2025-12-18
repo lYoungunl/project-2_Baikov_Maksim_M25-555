@@ -4,9 +4,12 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from prettytable import PrettyTable
 
+from .decorators import confirm_action, handle_db_errors, log_time, memoize
+
 VALID_TYPES = {"int", "str", "bool"}
 
 
+@handle_db_errors
 def create_table(
     metadata: Dict[str, Any],
     table_name: str,
@@ -62,6 +65,8 @@ def create_table(
     return metadata, msg
 
 
+@handle_db_errors
+@confirm_action("удаление таблицы")
 def drop_table(metadata: Dict[str, Any], table_name: str) -> Tuple[Dict[str, Any], str]:
     """Удаляет таблицу из метаданных.
 
@@ -80,6 +85,7 @@ def drop_table(metadata: Dict[str, Any], table_name: str) -> Tuple[Dict[str, Any
     return metadata, f'Таблица "{table_name}" успешно удалена.'
 
 
+@handle_db_errors
 def list_tables(metadata: Dict[str, Any]) -> str:
     """Возвращает строку со спиком всех таблиц.
 
@@ -102,6 +108,7 @@ def list_tables(metadata: Dict[str, Any]) -> str:
         return result.rstrip()  # Убираем последний перенос строки
 
 
+@handle_db_errors
 def get_table_info(metadata: Dict[str, Any], table_name: str) -> str:
     """Возвращает информацию о структуре таблицы.
 
@@ -141,6 +148,8 @@ def validate_value_type(value: Any, expected_type: str) -> bool:
         return False
 
 
+@handle_db_errors
+@log_time
 def insert(
     metadata: Dict[str, Any],
     table_data: List[Dict[str, Any]],
@@ -198,6 +207,9 @@ def insert(
     return table_data, msg
 
 
+@handle_db_errors
+@log_time
+@memoize
 def select(
     table_data: List[Dict[str, Any]],
     where_clause: Optional[Dict[str, Any]] = None,
@@ -228,6 +240,7 @@ def select(
     return filtered
 
 
+@handle_db_errors
 def format_as_table(
     records: List[Dict[str, Any]],
     columns: List[str],
@@ -266,6 +279,7 @@ def format_as_table(
     return table.get_string()
 
 
+@handle_db_errors
 def update(
     table_data: List[Dict[str, Any]],
     set_clause: Dict[str, Any],
@@ -300,6 +314,8 @@ def update(
     return table_data, updated_count
 
 
+@handle_db_errors
+@confirm_action("удаление записей")
 def delete(
     table_data: List[Dict[str, Any]],
     where_clause: Dict[str, Any],
@@ -365,3 +381,51 @@ if __name__ == "__main__":
     # Тест delete
     table_data, count = delete(table_data, {"name": "Sergei"})
     print(f"\nУдалено записей: {count}")
+
+
+def filter_with_operator(
+    table_data: List[Dict[str, Any]],
+    column: str,
+    operator: str,
+    value: Any,
+) -> List[Dict[str, Any]]:
+    """Фильтрует записи с оператором сравнения.
+
+    Args:
+        table_data: Данные таблицы
+        column: Имя столбца
+        operator: Оператор сравнения (=, !=, >, <, >=, <=)
+        value: Значение для сравнения
+
+    Returns:
+        Отфильтрованный список записей
+    """
+    filtered = []
+
+    for record in table_data:
+        record_value = record.get(column)
+
+        if record_value is None:
+            continue
+
+        # Выполняем сравнение в зависимости от оператора
+        if operator == "=":
+            if record_value == value:
+                filtered.append(record.copy())
+        elif operator == "!=":
+            if record_value != value:
+                filtered.append(record.copy())
+        elif operator == ">":
+            if record_value > value:
+                filtered.append(record.copy())
+        elif operator == "<":
+            if record_value < value:
+                filtered.append(record.copy())
+        elif operator == ">=":
+            if record_value >= value:
+                filtered.append(record.copy())
+        elif operator == "<=":
+            if record_value <= value:
+                filtered.append(record.copy())
+
+    return filtered

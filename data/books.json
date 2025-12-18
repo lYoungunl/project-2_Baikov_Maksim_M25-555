@@ -1,0 +1,14 @@
+[
+  {
+    "ID": 1,
+    "title": "Python Guide",
+    "pages": 350,
+    "available": true
+  },
+  {
+    "ID": 2,
+    "title": "Data Science",
+    "pages": 450,
+    "available": false
+  }
+]

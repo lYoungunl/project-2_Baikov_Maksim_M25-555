@@ -4,7 +4,10 @@ import json
 import os
 from typing import Any, Dict, List
 
+from .decorators import handle_db_errors, log_time
 
+
+@handle_db_errors
 def load_metadata(filepath: str = "db_meta.json") -> Dict[str, Any]:
     """Загружает данные из JSON-файла.
 
@@ -24,6 +27,7 @@ def load_metadata(filepath: str = "db_meta.json") -> Dict[str, Any]:
         return {}
 
 
+@handle_db_errors
 def save_metadata(data: Dict[str, Any], filepath: str = "db_meta.json") -> None:
     """Сохраняет данные в JSON-файл.
 
@@ -35,6 +39,8 @@ def save_metadata(data: Dict[str, Any], filepath: str = "db_meta.json") -> None:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 
+@handle_db_errors
+@log_time
 def load_table_data(table_name: str, data_dir: str = "data") -> List[Dict[str, Any]]:
     """Загружает данные таблицы из JSON-файла.
 
@@ -56,6 +62,8 @@ def load_table_data(table_name: str, data_dir: str = "data") -> List[Dict[str, A
         return []
 
 
+@handle_db_errors
+@log_time
 def save_table_data(
     table_name: str, data: List[Dict[str, Any]], data_dir: str = "data"
 ) -> None:

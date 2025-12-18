@@ -1,6 +1,7 @@
 """Парсеры для разбора условий WHERE и SET."""
 
-from typing import Any, Dict
+import re
+from typing import Any, Dict, List, Optional, Tuple
 
 
 def parse_value(value_str: str) -> Any:
@@ -38,14 +39,44 @@ def parse_value(value_str: str) -> Any:
     return value_str
 
 
+def parse_comparison_operator(condition_str: str) -> Tuple[str, str, Any]:
+    """Парсит условие сравнения с оператором.
+
+    Поддерживаемые операторы: =, !=, >, <, >=, <=
+
+    Args:
+        condition_str: Строка условия, например "age > 28" или 'name = "John"'
+
+    Returns:
+        Кортеж (column, operator, value)
+
+    Raises:
+        ValueError: Если формат некорректный
+    """
+    # Регулярное выражение для поиска операторов сравнения
+    # Ищем оператор, окруженный пробелами
+    pattern = r"\s*(=|!=|>|<|>=|<=)\s*"
+
+    match = re.split(pattern, condition_str, maxsplit=1)
+    if len(match) != 3:
+        raise ValueError(f"Некорректный формат условия: {condition_str}")
+
+    column = match[0].strip()
+    operator = match[1].strip()
+    value_str = match[2].strip()
+    value = parse_value(value_str)
+
+    return column, operator, value
+
+
 def parse_where_clause(where_str: str) -> Dict[str, Any]:
-    """Парсит условие WHERE в словарь.
+    """Парсит условие WHERE в словарь для простых условий с =.
 
     Args:
         where_str: Строка условия, например "age = 28" или 'name = "John"'
 
     Returns:
-        Словарь вида {'column': value}
+        Словарь вида {'column': value} (только для оператора =)
 
     Raises:
         ValueError: Если формат некорректный
@@ -53,15 +84,21 @@ def parse_where_clause(where_str: str) -> Dict[str, Any]:
     if not where_str:
         return {}
 
-    # Разбиваем на части
-    parts = where_str.split("=", 1)
-    if len(parts) != 2:
-        raise ValueError(f"Некорректный формат WHERE: {where_str}")
+    try:
+        # Пытаемся разобрать как условие сравнения
+        column, operator, value = parse_comparison_operator(where_str)
 
-    column = parts[0].strip()
-    value = parse_value(parts[1].strip())
+        if operator != "=":
+            # Для обратной совместимости возвращаем только условия с =
+            # Более сложные условия обрабатываются в engine.py
+            raise ValueError(
+                f"Некорректный формат WHERE: {where_str}. "
+                f"Для WHERE поддерживается только оператор ="
+            )
 
-    return {column: value}
+        return {column: value}
+    except Exception as e:
+        raise ValueError(f"Некорректный формат WHERE: {where_str}. Ошибка: {e}")
 
 
 def parse_set_clause(set_str: str) -> Dict[str, Any]:
@@ -79,18 +116,40 @@ def parse_set_clause(set_str: str) -> Dict[str, Any]:
     if not set_str:
         return {}
 
-    # Разбиваем на части
-    parts = set_str.split("=", 1)
-    if len(parts) != 2:
-        raise ValueError(f"Некорректный формат SET: {set_str}")
+    try:
+        # Парсим как условие сравнения, но для SET всегда используется =
+        column, operator, value = parse_comparison_operator(set_str)
 
-    column = parts[0].strip()
-    value = parse_value(parts[1].strip())
+        if operator != "=":
+            raise ValueError(
+                f"Некорректный формат SET: {set_str}. "
+                f"Для SET поддерживается только оператор ="
+            )
 
-    return {column: value}
+        return {column: value}
+    except Exception as e:
+        raise ValueError(f"Некорректный формат SET: {set_str}. Ошибка: {e}")
 
 
-def parse_values(values_str: str) -> list:
+def parse_where_with_operator(where_str: str) -> Optional[Tuple[str, str, Any]]:
+    """Парсит условие WHERE с любым оператором сравнения.
+
+    Args:
+        where_str: Строка условия
+
+    Returns:
+        Кортеж (column, operator, value) или None если условие пустое
+
+    Raises:
+        ValueError: Если формат некорректный
+    """
+    if not where_str:
+        return None
+
+    return parse_comparison_operator(where_str)
+
+
+def parse_values(values_str: str) -> List[Any]:
     """Парсит строку значений в список.
 
     Args:
@@ -161,7 +220,25 @@ def test_parser():
     print("Тест parse_value:")
     print(f'  "28" -> {parse_value("28")} (тип: {type(parse_value("28"))})')
     print(f'  "true" -> {parse_value("true")}')
-    print(f'  ""John"" -> {parse_value('"John"')}')
+    print(f'  "John" -> {parse_value('"John"')}')
+
+    print("\nТест parse_comparison_operator:")
+    test_cases = [
+        "age = 28",
+        'name = "John"',
+        "pages > 400",
+        "available = true",
+        "score >= 80",
+        "price <= 1000",
+    ]
+
+    for test_case in test_cases:
+        try:
+            col, op, val = parse_comparison_operator(test_case)
+            print(f"  {test_case} -> column={col}, operator={op}, value={val}")
+            print(f"        Тип: {type(val).__name__}")
+        except Exception as e:
+            print(f"  {test_case} -> ОШИБКА: {e}")
 
     print("\nТест parse_values:")
     test_cases = [
