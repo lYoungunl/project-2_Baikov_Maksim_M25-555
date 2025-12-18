@@ -54,7 +54,6 @@ def parse_comparison_operator(condition_str: str) -> Tuple[str, str, Any]:
         ValueError: Если формат некорректный
     """
     # Регулярное выражение для поиска операторов сравнения
-    # Ищем оператор, окруженный пробелами
     pattern = r"\s*(=|!=|>|<|>=|<=)\s*"
 
     match = re.split(pattern, condition_str, maxsplit=1)

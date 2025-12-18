@@ -40,28 +40,27 @@ def confirm_action(action_name: str) -> Callable:
 
     Args:
         action_name: Название действия для отображения пользователю
-
+        
     Returns:
         Декоратор, запрашивающий подтверждение
     """
-
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             print(f'Вы уверены, что хотите выполнить "{action_name}"? [y/n]: ', end="")
             response = input().strip().lower()
-
+            
             if response == "y":
                 return func(*args, **kwargs)
             else:
                 print("Операция отменена.")
-                # Возвращаем исходные данные без изменений
-                if len(args) > 0:
-                    return args[0], "Операция отменена пользователем."
+                # Для функций, возвращающих кортеж (данные, сообщение)
+                if func.__name__ in ["drop_table", "delete", "insert", "update"]:
+                    # Возвращаем исходные данные и сообщение об отмене
+                    if len(args) > 0:
+                        return args[0], "Операция отменена пользователем."
                 return None
-
         return wrapper
-
     return decorator
 
 

@@ -382,49 +382,5 @@ if __name__ == "__main__":
     print(f"\nУдалено записей: {count}")
 
 
-def filter_with_operator(
-    table_data: List[Dict[str, Any]],
-    column: str,
-    operator: str,
-    value: Any,
-) -> List[Dict[str, Any]]:
-    """Фильтрует записи с оператором сравнения.
 
-    Args:
-        table_data: Данные таблицы
-        column: Имя столбца
-        operator: Оператор сравнения (=, !=, >, <, >=, <=)
-        value: Значение для сравнения
 
-    Returns:
-        Отфильтрованный список записей
-    """
-    filtered = []
-
-    for record in table_data:
-        record_value = record.get(column)
-
-        if record_value is None:
-            continue
-
-        # Выполняем сравнение в зависимости от оператора
-        if operator == "=":
-            if record_value == value:
-                filtered.append(record.copy())
-        elif operator == "!=":
-            if record_value != value:
-                filtered.append(record.copy())
-        elif operator == ">":
-            if record_value > value:
-                filtered.append(record.copy())
-        elif operator == "<":
-            if record_value < value:
-                filtered.append(record.copy())
-        elif operator == ">=":
-            if record_value >= value:
-                filtered.append(record.copy())
-        elif operator == "<=":
-            if record_value <= value:
-                filtered.append(record.copy())
-
-    return filtered
