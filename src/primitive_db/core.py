@@ -1,12 +1,11 @@
-"""Основная логика работы с таблицами и данными."""
+﻿"""Основная логика работы с таблицами и данными."""
 
 from typing import Any, Dict, List, Optional, Tuple
 
 from prettytable import PrettyTable
 
+from .constants import VALID_TYPES
 from .decorators import confirm_action, handle_db_errors, log_time, memoize
-
-VALID_TYPES = {"int", "str", "bool"}
 
 
 @handle_db_errors
@@ -38,7 +37,7 @@ def create_table(
     # Обрабатываем пользовательские столбцы
     for col in columns:
         if ":" not in col:
-            msg = f"Некорректное значение: {col}. "
+            msg = f'Некорректное значение: {col}. '
             msg += 'Ожидается формат "имя:тип".'
             return metadata, msg
 
@@ -47,8 +46,8 @@ def create_table(
 
         if col_type not in VALID_TYPES:
             valid_types_str = ", ".join(VALID_TYPES)
-            msg = f"Некорректный тип: {col_type}. "
-            msg += f"Допустимые типы: {valid_types_str}"
+            msg = f'Некорректный тип: {col_type}. '
+            msg += f'Допустимые типы: {valid_types_str}'
             return metadata, msg
 
         processed_columns.append(f"{col_name}:{col_type}")
@@ -87,7 +86,7 @@ def drop_table(metadata: Dict[str, Any], table_name: str) -> Tuple[Dict[str, Any
 
 @handle_db_errors
 def list_tables(metadata: Dict[str, Any]) -> str:
-    """Возвращает строку со спиком всех таблиц.
+    """Возвращает строку со списком всех таблиц.
 
     Args:
         metadata: Текущие метаданные базы данных
@@ -177,7 +176,7 @@ def insert(
     if len(values) != len(columns_schema):
         expected = len(columns_schema)
         got = len(values)
-        return table_data, f"Ошибка: Ожидается {expected} значений, получено {got}."
+        return table_data, f'Ошибка: Ожидается {expected} значений, получено {got}.'
 
     # Генерируем новый ID
     if table_data:
@@ -195,8 +194,8 @@ def insert(
 
         # Проверяем тип
         if not validate_value_type(value, col_type):
-            msg = f"Ошибка: Неверный тип для столбца {col_name}. "
-            msg += f"Ожидается {col_type}."
+            msg = f'Ошибка: Неверный тип для столбца {col_name}. '
+            msg += f'Ожидается {col_type}.'
             return table_data, msg
 
         new_record[col_name] = value
